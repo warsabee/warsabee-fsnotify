@@ -1,0 +1,6 @@
+package warsabee:fsnotify@0.1.0;
+
+world fsnotify {
+    import notifier;
+    export watcher;
+}

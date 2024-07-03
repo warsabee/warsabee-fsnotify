@@ -1,0 +1,79 @@
+package warsabee:fsnotify@0.1.0;
+
+interface notifier {
+    flags access-mode {
+        read,
+        write,
+        execute,
+    }
+
+    record open-event {
+        path: string,
+        mode: option<access-mode>,
+    }
+
+    record close-event {
+        path: string,
+        mode: option<access-mode>,
+    }
+
+    enum create-kind {
+        file,
+        directory,
+    }
+    record create-event {
+        path: string,
+        kind: option<create-kind>,
+    }
+
+    record read-event {
+        path: string,
+    }
+
+    enum modify-kind {
+        size,
+        content,
+        metadata,
+    }
+    record modify-event {
+        path: string,
+        kind: option<modify-kind>,
+    }
+
+    record rename-event {
+        source: string,
+        destination: option<string>,
+    }
+
+    variant event {
+        open(open-event),
+        close(close-event),
+        create(create-event),
+        read(read-event),
+        modify(modify-event),
+        rename(rename-event),
+    }
+
+    variant error {
+        /// The path to be watched does not exist.
+        path-not-found,
+
+        /// The watch to be removed does not exist.
+        watch-not-found,
+
+        /// Generic error
+        other(string),
+    }
+
+    /// Watch filesystem activities at specific `path`.
+    ///
+    /// By setting `recursive`, recursively traversed paths will be watched.
+    watch: func(path: string, recursive: bool) -> result<_, error>;
+    unwatch: func(path: string) -> result<_, error>;
+}
+
+interface watcher {
+    use notifier.{event};
+
+    on-watch: func(event: event);
+}
